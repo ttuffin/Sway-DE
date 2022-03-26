@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 alacritty-wal.sh
-pywalfox update
+#pywalfox update
 systemctl reload --user waybar
 systemctl reload --user mako
 systemctl restart --user kanshi

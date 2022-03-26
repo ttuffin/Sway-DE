@@ -3,8 +3,8 @@
 set -e
 
 ICON=$HOME/.local/share/icons/target
-THUMB=$(playerctl -i firefox metadata --format '{{lc(mpris:artUrl)}}')
-SONG=$(playerctl -i firefox metadata --format "{{ title }}\n{{ artist }} - {{ album }}")
+THUMB=$(playerctl -i brave metadata --format '{{lc(mpris:artUrl)}}')
+SONG=$(playerctl -i brave metadata --format "{{ title }}\n{{ artist }} - {{ album }}")
 
 if [ -n "$THUMB" ]; then
   convert "$THUMB" -flatten -thumbnail 256x256 "$ICON"

@@ -36,8 +36,8 @@ window#waybar.solo {
 	color: transparent;
 	border-bottom: 0px;
 }*/
-window#waybar.evolution,
-window#waybar.firefox,
+window#waybar.chromium,
+window#waybar.brave,
 window#waybar.code-oss {
 	/*background-color: #FFFFFF;*/
 	background-color: @color0;

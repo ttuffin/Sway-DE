@@ -2,7 +2,6 @@
 #zmodload zsh/zprof
 ## Generic Requirements
 ### * git
-### * thefuck
 
 ## Arch
 ### * pkgfile
@@ -34,9 +33,11 @@ setopt inc_append_history # save history entries as soon as they are entered
 setopt share_history # share history between different instances of the shell
 setopt auto_cd # cd by typing directory name if it's not a command
 #setopt correct_all # autocorrect commands
+setopt correct # Auto correct mistakes
 setopt auto_list # automatically list choices on ambiguous completion
 setopt auto_menu # automatically use menu completion
 setopt always_to_end # move cursor to end if word had one match
+setopt nobeep # No beep
 #setopt COMPLETE_ALIASES
 
 autoload -Uz compinit && compinit
@@ -45,8 +46,8 @@ autoload -U +X bashcompinit && bashcompinit
 # Must be after bashcompinit
 for f in $HOME/.local/bin/zsh/*.sh; do source $f; done
 
-# emacs key bindings
-bindkey -e
+# vi key bindings
+bindkey -v
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
@@ -131,7 +132,6 @@ zinit light zdharma/history-search-multi-word
 zinit light skywind3000/z.lua # navigate faster by learning your habits
 zinit snippet OMZP::command-not-found # provide suggested packages to be installed if a command cannot be found
 zinit snippet OMZP::extract # extracts a wide variety of archive filetypes
-zinit snippet OMZP::thefuck # corrects your previous console command
 
 # Colored man pages
 export LESS_TERMCAP_md=$(tput bold; tput setaf 1)

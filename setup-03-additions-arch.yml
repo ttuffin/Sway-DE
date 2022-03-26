@@ -15,6 +15,7 @@
   tasks:
     - name: Common | Including hardware type task
       include: playbooks/hw-{{ TYPE }}.yml
+      tags: hwconfig
 
     - name: Common | Creating directories...
       file:
@@ -42,7 +43,6 @@
           aur:
             name:
               - networkmanager-l2tp
-              - wps-office
             state: latest
 
         - name: Arch | Installing software
@@ -50,13 +50,9 @@
             name:
               - chromium
               - code
-              - cowsay
-              # - docker
-              # - docker-compose
               - lsb-release
               - networkmanager-openconnect
               - networkmanager-strongswan
-              - remmina
               - shfmt
             state: installed
             update_cache: true

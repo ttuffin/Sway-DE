@@ -6,9 +6,8 @@
 
   vars:
     SWAY_DIR: "{{ ansible_user_dir }}/.config/sway"
-    SWAY_ZSH: false
+    SWAY_ZSH: true
     BIN_DIR: "{{ ansible_user_dir }}/.local/bin"
-    ROOT_BIN_DIR: "/root/.local/bin"
     SYSTEMD_UDIR: "{{ ansible_user_dir }}/.config/systemd/user"
     STARSHIP_OPTIONS:
       - { section: null, option: add_newline, value: "false" }
@@ -43,12 +42,9 @@
           pacman:
             name:
               - alacritty
-              - antiword
               - bemenu
               - bemenu-wayland
               - blueman
-              - cdrtools
-              - docx2txt
               - ffmpeg
               - gammastep
               - gnome-power-manager
@@ -63,7 +59,6 @@
               - ncmpcpp
               - network-manager-applet
               - noto-fonts-emoji
-              - odt2txt
               #- otf-font-awesome
               - pavucontrol
               - pcmanfm-gtk3
@@ -78,9 +73,9 @@
               - starship
               - sway
               - swayidle
-              - thefuck
               #- ttf-dejavu
               - udiskie
+              - vim
               - waybar
               - wf-recorder
             state: latest
@@ -113,6 +108,7 @@
               - autotiling
               - avizo
               - bemenu-dmenu
+              - brave-bin
               - clipman
               - dragon-drag-and-drop
               - edir
@@ -246,7 +242,6 @@
       with_fileglob:
         - "{{ playbook_dir }}/bin/*.sh"
         - "{{ playbook_dir }}/bin/emoji"
-        - "{{ playbook_dir }}/bin/steam"
 
     - name: Common | Templating custom bashrc...
       template:
@@ -355,52 +350,6 @@
           # {mark} Sway desktop environment config"
         insertafter: EOF
         create: true
-
-    - name: Common | Creating root directories...
-      file:
-        owner: root
-        group: root
-        mode: 0750
-        path: "{{ item }}"
-        state: directory
-      with_items:
-        - "{{ ROOT_BIN_DIR }}/bash"
-      become: true
-
-    - name: Common | Extending root .profile...
-      blockinfile:
-        dest: "/root/.profile"
-        block: |
-          for f in {{ ROOT_BIN_DIR }}/bash/*.sh; do source $f; done
-          eval "$(starship init bash)"
-        marker: "
-          # {mark} Sway desktop environment config"
-        insertafter: EOF
-        create: true
-        owner: root
-        group: root
-        mode: 0640
-      become: true
-
-    - name: Common | Templating root bashrc files...
-      template:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: root
-        mode: "{{ item.mode }}"
-      with_items:
-        - {
-            src: "{{ playbook_dir }}/config/bash/bashrc.j2",
-            dest: "{{ ROOT_BIN_DIR }}/bash/sway-de.sh",
-            mode: "0600",
-          }
-        - {
-            src: "{{ playbook_dir }}/bin/sway",
-            dest: "/usr/local/sbin/sway",
-            mode: "0755",
-          }
-      become: true
 
     - name: Common | Configuring {{ ansible_user_dir }}/.config/gtk-3.0/settings.ini
       ini_file:
@@ -545,19 +494,6 @@
         mode: 0640
       with_items:
         - "{{ STARSHIP_OPTIONS }}"
-
-    - name: Common | Configuring /root/.config/starship.toml
-      ini_file:
-        path: "/root/.config/starship.toml"
-        section: "{{ item.section }}"
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-        owner: root
-        group: root
-        mode: 0640
-      with_items:
-        - "{{ STARSHIP_OPTIONS }}"
-      become: true
 
     - name: Replacing sway executable in sway.desktop entry
       ini_file:
