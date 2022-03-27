@@ -1,0 +1,9 @@
+profile Notebook {
+  output eDP-1 position 0,0 mode 1920x1080
+}
+
+profile Docked {
+  output eDP-1 position 3840,0 mode 1920x1080
+  output "Lenovo Group Limited LEN L27i-28 0x0000715A" position 0,0 mode 1920x1080
+  output "Lenovo Group Limited LEN L27i-28 0x0000714C" position 1920,0 mode 1920x1080
+}

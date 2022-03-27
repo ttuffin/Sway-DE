@@ -8,7 +8,11 @@
     SWAY_DIR: "{{ ansible_user_dir }}/.config/sway"
     SWAY_ZSH: true
     BIN_DIR: "{{ ansible_user_dir }}/.local/bin"
+    DOTFILES_DIR: "{{ ansible_user_dir }}/dotfiles"
     SYSTEMD_UDIR: "{{ ansible_user_dir }}/.config/systemd/user"
+    HW_TYPE: thinkpad
+    LOC_LAT: 0
+    LOC_LON: 0
     STARSHIP_OPTIONS:
       - { section: null, option: add_newline, value: "false" }
       - { section: cmd_duration, option: disabled, value: "true" }
@@ -42,24 +46,36 @@
           pacman:
             name:
               - alacritty
+              - bash-completion
               - bemenu
               - bemenu-wayland
+              - bluez-utils
               - blueman
+              - brightnessctl
+              - browserpass
+              - cmake
+              - fakeroot
               - ffmpeg
               - gammastep
+              - gcc
               - gnome-power-manager
+              - gobject-introspection
               - grim
               - highlight
               - imagemagick
               - jq
               - kanshi
+              - libarchive
               - libpipewire02
               - lsd
+              - make
               - mako
+              - man-db
               - ncmpcpp
               - network-manager-applet
               - noto-fonts-emoji
               #- otf-font-awesome
+              - pass
               - pavucontrol
               - pcmanfm-gtk3
               - perl-image-exiftool
@@ -67,19 +83,28 @@
               - playerctl
               - polkit-gnome
               - python-pywal
+              - pulseaudio
+              - pulseaudio-bluetooth
               - qt5-wayland
               - rsync
               - slurp
               - starship
               - sway
               - swayidle
+              - ttf-nerd-fonts-symbols
+              - ttf-jetbrains-mono
+              - ttf-ubuntu-font-family
               #- ttf-dejavu
               - udiskie
               - vim
               - waybar
               - wf-recorder
+              - wofi
+              - xdg-user-dirs
+              - xorg-xwayland
             state: latest
             update_cache: true
+          tags: package_install
 
         - name: Arch | Making sure file ~/.gnupg/gpg.conf exists for user aur_builder
           copy:
@@ -102,26 +127,24 @@
           become_user: aur_builder
 
         - name: Arch | Installing required software from aur
-          aur:
+          kewlfft.aur.aur:
             name:
-              - archivemount
+              #- archivemount
               - autotiling
               - avizo
               - bemenu-dmenu
               - brave-bin
               - clipman
-              - dragon-drag-and-drop
+              - dragon-drop
               - edir
-              - glow-bin
-              - j4-dmenu-desktop
+              #- j4-dmenu-desktop
               - lf
               - nerd-fonts-dejavu-complete
               #- otf-font-awesome-4
-              - remontoire-git
+              #- remontoire-git
               - swappy
               - swaylock-effects-git
               #- ttf-font-awesome-4
-              - wl-clipboard-git
               # - wl-clipboard-x11
               - wshowkeys-git
               - xdg-desktop-portal-wlr
@@ -133,6 +156,7 @@
             mitogen_task_isolation: fork
       when: ansible_distribution == 'Archlinux'
       become: true
+      tags: package_install
 
     - name: Common | Creating directories...
       file:
@@ -149,6 +173,7 @@
         - "{{ BIN_DIR }}/zsh"
         - "{{ SYSTEMD_UDIR }}"
         - "{{ ansible_user_dir }}/.config/mako"
+        - "{{ ansible_user_dir }}/.config/gammastep"
         - "{{ ansible_user_dir }}/.config/kanshi"
         - "{{ ansible_user_dir }}/.config/swappy"
         - "{{ ansible_user_dir }}/.config/lf"
@@ -160,6 +185,7 @@
         - "{{ ansible_user_dir }}/.local/share/themes/Windows-10"
         - "{{ ansible_user_dir }}/.local/share/icons/Windows-10"
         - "{{ USER_PICTURE_DIR }}/screenshots"
+      tags: symlinks
 
     - name: Common | Ensure wgetrc exists
       copy:
@@ -170,6 +196,32 @@
         owner: "{{ ansible_user_id }}"
         mode: 0640
 
+    - name: dotfiles config directory exists
+      ansible.builtin.file:
+        path: "{{ DOTFILES_DIR }}/config"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        state: directory
+      tags: symlinks
+
+    - name: Copy config files
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ DOTFILES_DIR }}/config"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+      tags: symlinks
+      loop:
+        - "{{ playbook_dir }}/config/bash"
+        - "{{ playbook_dir }}/config/kanshi"
+        - "{{ playbook_dir }}/config/mako"
+        - "{{ playbook_dir }}/config/sway"
+        - "{{ playbook_dir }}/config/wal"
+        - "{{ playbook_dir }}/config/waybar"
+        - "{{ playbook_dir }}/config/wofi"
+        - "{{ playbook_dir }}/config/xdg-desktpo-portal-wlr"
+        - "{{ playbook_dir }}/config/zsh"
+
     - name: Common | Creating config symlinks...
       file:
         owner: "{{ ansible_user_id }}"
@@ -179,14 +231,16 @@
         dest: "{{ item.dest }}"
         #force: true
         state: link
+      ignore_errors: true
+      tags: symlinks
       with_items:
         - {
-            src: "{{ playbook_dir }}/config/sway/sway.conf",
+            src: "{{ DOTFILES_DIR }}/config/sway/sway.conf",
             dest: "{{ SWAY_DIR }}/config",
             mode: "0640",
           }
         - {
-            src: "{{ playbook_dir }}/config/sway/sway.d",
+            src: "{{ DOTFILES_DIR }}/config/sway/sway.d",
             dest: "{{ SWAY_DIR }}/sway.d",
             mode: "0750",
           }
@@ -196,13 +250,13 @@
             mode: "0640",
           }
         - {
-            src: "{{ playbook_dir }}/config/waybar",
+            src: "{{ DOTFILES_DIR }}/config/waybar",
             dest: "{{ ansible_user_dir }}/.config/waybar",
             mode: "0750",
           }
         - {
-            src: "{{ playbook_dir }}/config/kanshi/config.example",
-            dest: "{{ ansible_user_dir }}/.config/kanshi/config.example",
+            src: "{{ DOTFILES_DIR }}/config/kanshi/config",
+            dest: "{{ ansible_user_dir }}/.config/kanshi/config",
             mode: "0640",
           }
         - {
@@ -216,20 +270,26 @@
             mode: "0640",
           }
         - {
-            src: "{{ playbook_dir }}/config/zsh/.zshrc",
+            src: "{{ DOTFILES_DIR }}/config/zsh/.zshrc",
             dest: "{{ ansible_user_dir }}/.config/zsh/.zshrc",
             mode: "0640",
           }
         - {
-            src: "{{ playbook_dir }}/config/wal/templates/colors-mako",
+            src: "{{ DOTFILES_DIR }}/config/wal/templates/colors-mako",
             dest: "{{ ansible_user_dir }}/.config/wal/templates/colors-mako",
             mode: "0640",
           }
         - {
-            src: "{{ playbook_dir }}/config/xdg-desktpo-portal-wlr/config",
+            src: "{{ DOTFILES_DIR }}/config/xdg-desktpo-portal-wlr/config",
             dest: "{{ ansible_user_dir }}/.config/xdg-desktpo-portal-wlr/config",
             mode: "0640",
           }
+        - {
+            src: "{{ DOTFILES_DIR }}/config/wofi",
+            dest: "{{ ansible_user_dir }}/.config/wofi",
+            mode: "0750",
+          }
+
 
     - name: Common | Creating shell script symlinks...
       file:
@@ -259,6 +319,20 @@
             src: "{{ playbook_dir }}/config/bash/bashrc.j2",
             dest: "{{ BIN_DIR }}/zsh/sway-de.sh",
           }
+
+    - name: Common | Templating gammastep...
+      ansible.builtin.template:
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: 0640
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - {
+            src: "{{ playbook_dir }}/config/gammastep/config.ini.j2",
+            dest: "{{ ansible_user_dir }}/.config/gammastep/config.ini",
+          }
+      tags: symlinks
 
     - name: Common | Checking existence of alacritty.yml
       stat:
@@ -320,6 +394,7 @@
     - name: Common | Creating default pywal config
       command: wal --theme base16-dracula -o wal.sh
       when: not mako_pywal_config.stat.exists
+      ignore_errors: true
 
     - name: Common | Cloning Windows-10 themes and icons...
       git:
@@ -494,6 +569,85 @@
         mode: 0640
       with_items:
         - "{{ STARSHIP_OPTIONS }}"
+
+    - name: Extra configuration for Thinkpad laptops
+      block:
+        - name: Arch | Installing software for Lenovo Thinkpad notebooks
+          pacman:
+            name:
+              - acpi_call-dkms
+              - lm_sensors
+              - tlp
+              - tlp-rdw
+              - tp_smapi
+            state: latest
+            update_cache: true
+          become: true
+
+        - name: Arch | Installing software from aur
+          kewlfft.aur.aur:
+            name:
+              - thinkfan
+              - auto-cpufreq
+            state: latest
+
+        - name: Common | Enabling systemd units
+          systemd:
+            name: "{{ item }}"
+            enabled: true
+            daemon_reload: true
+          become: true
+          with_items:
+            - tlp
+            - auto-cpufreq
+
+        - name: Common | Masking systemd-rfkill units
+          systemd:
+            name: "{{ item }}"
+            masked: true
+          become: true
+          with_items:
+            - systemd-rfkill.service
+            - systemd-rfkill.socket
+
+        - name: Thunderbolt device auto connection
+          ansible.builtin.copy:
+            content: >
+              ACTION=="add", SUBSYSTEM=="thunderbolt",
+              ATTR{authorized}=="0", ATTR{authorized}="1"
+            dest: /etc/udev/rules.d/99-removable.rules
+            owner: root
+            group: root
+            mode: '0644'
+          become: true
+
+      when: HW_TYPE == "thinkpad"
+      tags: hw_config
+
+    - name: Browserpass configured
+      community.general.make:
+        chdir: /usr/lib/browserpass
+        target: hosts-brave-user
+      tags: browserpass_config
+
+    - name: Pulse custom config directory exists
+      ansible.builtin.file:
+        path: /etc/pulse/default.pa.d/
+        owner: root
+        group: root
+        state: directory
+      become: true
+
+    - name: Ensure audio moves to bluetooth devices on connect
+      ansible.builtin.copy:
+        content: |
+          ### Switch to bluetooth device on connect
+          load-module module-switch-on-connect
+        dest: /etc/pulse/default.pa.d/auto_bluetooth.conf
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
 
     - name: Replacing sway executable in sway.desktop entry
       ini_file:
