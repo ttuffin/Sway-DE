@@ -11,6 +11,7 @@
     DOTFILES_DIR: "{{ ansible_user_dir }}/dotfiles"
     SYSTEMD_UDIR: "{{ ansible_user_dir }}/.config/systemd/user"
     HW_TYPE: thinkpad
+    WLAN_ADAPTER: wlp82s0
     LOC_LAT: 0
     LOC_LON: 0
     STARSHIP_OPTIONS:
@@ -54,6 +55,7 @@
               - brightnessctl
               - browserpass
               - cmake
+              - ddcutil # for controlling external monitor backlight
               - fakeroot
               - ffmpeg
               - gammastep
@@ -185,7 +187,6 @@
         - "{{ ansible_user_dir }}/.local/share/themes/Windows-10"
         - "{{ ansible_user_dir }}/.local/share/icons/Windows-10"
         - "{{ USER_PICTURE_DIR }}/screenshots"
-      tags: symlinks
 
     - name: Common | Ensure wgetrc exists
       copy:
@@ -212,7 +213,6 @@
         group: "{{ ansible_user_id }}"
       tags: symlinks
       loop:
-        - "{{ playbook_dir }}/config/bash"
         - "{{ playbook_dir }}/config/kanshi"
         - "{{ playbook_dir }}/config/mako"
         - "{{ playbook_dir }}/config/sway"
@@ -290,18 +290,16 @@
             mode: "0750",
           }
 
-
-    - name: Common | Creating shell script symlinks...
-      file:
+    - name: Common | Copy shell scripts
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ BIN_DIR }}/sway/"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
         mode: 0750
-        src: "{{ item }}"
-        dest: "{{ BIN_DIR }}/sway/{{ item | basename }}"
-        state: link
       with_fileglob:
-        - "{{ playbook_dir }}/bin/*.sh"
-        - "{{ playbook_dir }}/bin/emoji"
+        - "{{ playbook_dir }}/bin/*"
+      tags: scripts
 
     - name: Common | Templating custom bashrc...
       template:
@@ -320,7 +318,7 @@
             dest: "{{ BIN_DIR }}/zsh/sway-de.sh",
           }
 
-    - name: Common | Templating gammastep...
+    - name: Common | Templating config files...
       ansible.builtin.template:
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
@@ -329,8 +327,12 @@
         dest: "{{ item.dest }}"
       with_items:
         - {
-            src: "{{ playbook_dir }}/config/gammastep/config.ini.j2",
+            src: "{{ playbook_dir }}/templates/gammastep/config.ini.j2",
             dest: "{{ ansible_user_dir }}/.config/gammastep/config.ini",
+          }
+        - {
+            src: "{{ playbook_dir }}/templates/waybar/config.j2",
+            dest: "{{ ansible_user_dir }}/.config/waybar/config",
           }
       tags: symlinks
 
@@ -648,6 +650,28 @@
         group: root
         mode: '0644'
       become: true
+
+    - name: modules.d directory exists
+      ansible.builtin.file:
+        path: /etc/modules-load.d
+        owner: root
+        group: root
+        state: directory
+      become: true
+      tags: ddci
+
+    # Needed for controlling brightness on ext monitors
+    - name: Ensure i2c-dev module auto loads
+      ansible.builtin.copy:
+        content: 'i2c-dev'
+        dest: /etc/modules-load.d/ddci.conf
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+      tags: ddci
+
+    ## TODO: Deploy aliases file
 
     - name: Replacing sway executable in sway.desktop entry
       ini_file:
