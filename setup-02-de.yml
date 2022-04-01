@@ -14,10 +14,6 @@
     WLAN_ADAPTER: wlp82s0
     LOC_LAT: 0
     LOC_LON: 0
-    STARSHIP_OPTIONS:
-      - { section: null, option: add_newline, value: "false" }
-      - { section: cmd_duration, option: disabled, value: "true" }
-      - { section: line_break, option: disabled, value: "true" }
     HOWTO: |
       After a reboot you can start Sway by entering "sway" on the console or let it automatically start after login via the following entry at the beginning of your ~/.bashrc:
       if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
@@ -214,6 +210,7 @@
       tags: symlinks
       loop:
         - "{{ playbook_dir }}/config/mako"
+        - "{{ playbook_dir }}/config/starship"
         - "{{ playbook_dir }}/config/sway"
         - "{{ playbook_dir }}/config/wal"
         - "{{ playbook_dir }}/config/waybar"
@@ -242,6 +239,11 @@
             src: "{{ DOTFILES_DIR }}/config/sway/sway.d",
             dest: "{{ SWAY_DIR }}/sway.d",
             mode: "0750",
+          }
+        - {
+            src: "{{ DOTFILES_DIR }}/config/starship/starship.toml",
+            dest: "{{ ansible_user_dir }}/.config/starship.toml",
+            mode: "0640",
           }
         - {
             src: "{{ ansible_user_dir }}/.cache/wal/colors-mako",
@@ -558,18 +560,6 @@
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_id }}"
         mode: 0640
-
-    - name: Common | Configuring {{ ansible_user_dir }}/.config/starship.toml
-      ini_file:
-        path: "{{ ansible_user_dir }}/.config/starship.toml"
-        section: "{{ item.section }}"
-        option: "{{ item.option }}"
-        value: "{{ item.value }}"
-        owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
-        mode: 0640
-      with_items:
-        - "{{ STARSHIP_OPTIONS }}"
 
     - name: Extra configuration for Thinkpad laptops
       block:
