@@ -35,7 +35,7 @@
             create: true
             owner: root
             group: root
-            mode: 0600
+            mode: 0440
           become: true
 
         - name: Install yay
