@@ -1,47 +1,55 @@
-/*
-Arc-Dark Color Scheme
-*/
-
-@define-color highlight #5294e2;
-@define-color base1  #404552;
-@define-color base2 #40455;
-@define-color base3  #4b5160;
+/* ::root{ */
+/*     --accent: #5291e2; */
+/*     --dark: #383C4A; */
+/*     --light: #7C818C; */
+/*     --ld: #404552; */
+/*     --dl: #4B5162 */
+/*     --white: white; */
+/* } */
 
 *{
-    font-family: UbuntuMono;
+    font-family: monospace;
 }
 
 window {
-    border: 1px solid @highlight;
+    background-color: #7C818C;
 }
 
 #input {
-    margin-bottom: 15px;
-    padding:3px;
-    border-radius: 5px;
-    border:none;
+    margin: 5px;
+    border-radius: 0px;
+    border: none;
+    border-bottom: 3px solid black;
+    background-color: #383C4A;
     color: white;
 }
 
 #inner-box {
-    background-color: @base3;
+    background-color: #383C4A;
+
 }
 
 #outer-box {
     margin: 5px;
-    padding:15px;
-    background-color: @base2;
+    padding:20px;
+    background-color: #383C4A;
+}
+
+#scroll {
 }
 
 #text {
-    padding: 5px;
-    color: white;
+padding: 5px;
+color: white;
 }
 
-#entry:nth-child(even) {
-    background-color: @base1;
+#entry:nth-child(even){
+    background-color: #404552;
 }
 
 #entry:selected {
-    background-color: @highlight;
+    background-color: #5291e2;
+}
+
+#text:selected {
 }
