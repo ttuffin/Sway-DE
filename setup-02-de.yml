@@ -138,6 +138,7 @@
               #- j4-dmenu-desktop
               - lf
               - nerd-fonts-dejavu-complete
+              - nerd-fonts-arimo
               #- otf-font-awesome-4
               #- remontoire-git
               - swappy
