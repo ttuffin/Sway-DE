@@ -89,6 +89,7 @@
               - starship
               - sway
               - swayidle
+              - swaylock
               - ttf-nerd-fonts-symbols
               - ttf-jetbrains-mono
               - ttf-ubuntu-font-family
@@ -127,25 +128,15 @@
         - name: Arch | Installing required software from aur
           kewlfft.aur.aur:
             name:
-              #- archivemount
               - autotiling
               - avizo
-              - bemenu-dmenu
               - brave-bin
               - clipman
-              - dragon-drop
               - edir
-              #- j4-dmenu-desktop
               - lf
               - nerd-fonts-dejavu-complete
               - nerd-fonts-arimo
-              #- otf-font-awesome-4
-              #- remontoire-git
               - swappy
-              - swaylock-effects-git
-              #- ttf-font-awesome-4
-              # - wl-clipboard-x11
-              - wshowkeys-git
               - xdg-desktop-portal-wlr
             state: latest
             use: yay
