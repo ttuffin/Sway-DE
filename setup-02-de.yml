@@ -44,8 +44,6 @@
             name:
               - alacritty
               - bash-completion
-              - bemenu
-              - bemenu-wayland
               - bluez-utils
               - blueman
               - brightnessctl
@@ -87,6 +85,7 @@
               - rsync
               - slurp
               - starship
+              - swappy
               - sway
               - swayidle
               - swaylock
@@ -132,11 +131,8 @@
               - avizo
               - brave-bin
               - clipman
-              - edir
-              - lf
               - nerd-fonts-dejavu-complete
               - nerd-fonts-arimo
-              - swappy
               - xdg-desktop-portal-wlr
             state: latest
             use: yay
