@@ -12,5 +12,5 @@ swaylock --daemonize \
 --line-ver-color 88C0D0 \
 --ring-ver-color 2E3440 \
 --show-failed-attempts \
--i ~/Pictures/Wallpaper/swaylock-2.jpg
+-i ~/Pictures/Wallpaper/swaylock.jpg
 
